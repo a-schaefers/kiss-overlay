@@ -1,0 +1,8 @@
+#!/bin/sh -e
+
+export CFLAGS="$CFLAGS -static"
+
+./configure \
+    --prefix=/home/adam/gnubin
+
+make DESTDIR="$1" install

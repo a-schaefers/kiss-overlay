@@ -1,0 +1,10 @@
+#!/bin/sh -e
+
+export CFLAGS="$CFLAGS -Wno-error -static"
+
+./configure \
+    --prefix=/home/adam/gnubin
+
+make
+
+install -Dm755 src/grep "$1/usr/bin/ggrep"
