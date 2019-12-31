@@ -7,4 +7,5 @@ install -Dm 755 config.def.h "$1/etc/kiss/defconfig/dwm"
 
 mv mine.config.def.h config.def.h
 
+make
 make CFLAGS="$CFLAGS -static" X11INC=/usr/include/X11 X11LIB=/usr/lib FREETYPEINC=/usr/include/freetype2 PREFIX=/usr DESTDIR="$1" install

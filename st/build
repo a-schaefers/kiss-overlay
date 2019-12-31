@@ -7,4 +7,5 @@ install -Dm 755 config.def.h "$1/etc/kiss/defconfig/st"
 
 mv mine.config.def.h config.def.h
 
+make
 make CFLAGS="$CFLAGS -static" PREFIX=/usr DESTDIR="$1" install
