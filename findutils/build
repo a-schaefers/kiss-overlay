@@ -3,6 +3,6 @@
 export CFLAGS="$CFLAGS -static"
 
 ./configure \
-    --prefix=/home/adam/gnubin
+    --prefix=/usr/local
 
 make DESTDIR="$1" install

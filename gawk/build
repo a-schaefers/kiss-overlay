@@ -3,7 +3,7 @@
 export CFLAGS="$CFLAGS -static"
 
 ./configure \
-    --prefix=/home/adam/gnubin
+    --prefix=/usr/local
 
 make
 
