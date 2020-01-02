@@ -6,5 +6,4 @@ export CFLAGS="$CFLAGS -Wno-error -static"
     --prefix=/usr/local
 
 make
-
-install -Dm755 src/grep "$1/usr/bin/ggrep"
+make DESTDIR="$1" install
