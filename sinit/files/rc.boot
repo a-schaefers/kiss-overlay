@@ -170,7 +170,7 @@ main() {
         dmesg > /var/log/dmesg.log
     }
 
-    log "Start process supervisor..."; {
+    log "Starting process supervisor..."; {
         sh -c 'ubase-box respawn /usr/bin/runsvdir -P /var/service' &
     }
 
