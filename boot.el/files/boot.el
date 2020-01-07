@@ -1,6 +1,8 @@
 #!/bin/dash
 ":"; exec /boot/emacs/bin/emacs --quick --script "$0" "$@" # -*- mode: emacs-lisp; lexical-binding: t; -*-
 
+(require 'subr-x)
+
 (setenv "PATH" "/bin")
 (setenv "SHELL" "/bin/dash")
 
@@ -32,41 +34,22 @@
 (message
  (concat "Welcome to KISS " (shell-command-to-string "uname -sr")))
 
-(or (and
-     (eq 0 (call-process "mountpoint" nil nil nil "-q" "/proc"))
-     (message "/proc is already mounted"))
-    (progn
-      (message "mounting /proc...")
-      (message "%s"
-               (process-exit-code-and-output
-                "ubase-box" "mount" "-o" "nosuid,noexec,nodev" "-t" "proc" "proc" "/proc"))))
+(message "%s"
+         (process-exit-code-and-output
+          "ubase-box" "mount" "-o" "nosuid,noexec,nodev" "-t" "proc" "proc" "/proc"))
 
-(or (and
-     (eq 0 (call-process "mountpoint" nil nil nil "-q" "/sys"))
-     (message "/sys is already mounted"))
-    (progn
-      (message "mounting /sys...")
-      (message "%s"
-               (process-exit-code-and-output
-                "ubase-box" "mount" "-o" "nosuid,noexec,nodev" "-t" "sysfs" "sys" "/sys"))))
+(message "%s"
+         (process-exit-code-and-output
+          "ubase-box" "mount" "-o" "nosuid,noexec,nodev" "-t" "sysfs" "sys" "/sys"))
 
-(or (and
-     (eq 0 (call-process "mountpoint" nil nil nil "-q" "/run"))
-     (message "/run is already mounted"))
-    (progn
-      (message "mounting /run...")
-      (message "%s"
-               (process-exit-code-and-output
-                "ubase-box" "mount" "-o" "mode=0755,nosuid,nodev" "-t" "tmpfs" "run" "/run"))))
+(message "%s"
+         (process-exit-code-and-output
+          "ubase-box" "mount" "-o" "mode=0755,nosuid,nodev" "-t" "tmpfs" "run" "/run"))
 
-(or (and
-     (eq 0 (call-process "mountpoint" nil nil nil "-q" "/dev"))
-     (message "/dev is already mounted"))
-    (progn
-      (message "mounting /dev...")
-      (message "%s"
-               (process-exit-code-and-output
-                "ubase-box" "mount" "-o" "mode=0755,nosuid" "-t" "devtmpfs" "dev" "/dev"))))
+;; already mounted
+(message "%s"
+         (process-exit-code-and-output
+          "ubase-box" "mount" "-o" "mode=0755,nosuid" "-t" "devtmpfs" "dev" "/dev"))
 
 (progn
   (make-directory "/run/lvm" t)
@@ -87,23 +70,15 @@
   (make-directory "/run/shm" t)
   (set-file-modes "/run/shm" #o755))
 
-(or (and
-     (eq 0 (call-process "mountpoint" nil nil nil "-q" "/dev/pts"))
-     (message "/dev/pts is already mounted"))
-    (progn
-      (message "mounting /dev/pts...")
-      (message "%s"
-               (process-exit-code-and-output
-                "ubase-box" "mount" "-o" "mode=0620,gid=5,nosuid" "-nt" "devpts" "devpts" "/dev/pts"))))
+;; fail
+(message "%s"
+         (process-exit-code-and-output
+          "ubase-box" "mount" "-o" "mode=0620,gid=5,nosuid" "-nt" "devpts" "devpts" "/dev/pts"))
 
-(or (and
-     (eq 0 (call-process "mountpoint" nil nil nil "-q" "/dev/shm"))
-     (message "/dev/shm is already mounted"))
-    (progn
-      (message "mounting /dev/shm...")
-      (message "%s"
-               (process-exit-code-and-output
-                "ubase-box" "mount" "-o" "mode=0777,nosuid,nodev" "-nt" "tmpfs" "shm" "/dev/shm"))))
+;; fail
+(message "%s"
+         (process-exit-code-and-output
+          "ubase-box" "mount" "-o" "mode=0777,nosuid,nodev" "-nt" "tmpfs" "shm" "/dev/shm"))
 
 (when (executable-find "udevd")
   (message "Starting eudev...")
@@ -190,16 +165,20 @@
 
 (message "Boot stage complete...")
 
-(async-shell-command "ubase-box respawn ubase-box getty /dev/tty1 linux")
-(async-shell-command "ubase-box respawn ubase-box getty /dev/tty2 linux")
-(async-shell-command "ubase-box respawn ubase-box getty /dev/tty3 linux")
-(async-shell-command "ubase-box respawn ubase-box getty /dev/tty4 linux")
-(async-shell-command "ubase-box respawn ubase-box getty /dev/tty5 linux")
-(async-shell-command "ubase-box respawn ubase-box getty /dev/tty6 linux")
+;; buggy job control (figure out proper forking /exec)
+(start-process-shell-command "getty" nil "exec sh -c 'ubase-box respawn /sbin/getty 38400 tty1' &>/dev/null &")
+(start-process-shell-command "getty" nil "exec sh -c 'ubase-box respawn /sbin/getty 38400 tty2' &>/dev/null &")
 
-;; service supervisor busybox-runit
-(async-shell-command "ubase-box respawn /usr/bin/runsvdir -P /var/service")
+;; (async-shell-command "ubase-box respawn ubase-box getty /dev/tty2 linux")
+;; (async-shell-command "ubase-box respawn ubase-box getty /dev/tty3 linux")
+;; (async-shell-command "ubase-box respawn ubase-box getty /dev/tty4 linux")
+;; (async-shell-command "ubase-box respawn ubase-box getty /dev/tty5 linux")
+;; (async-shell-command "ubase-box respawn ubase-box getty /dev/tty6 linux")
+
+;; runsvdir can't open supverise/lock ??????
+(start-process-shell-command "sh" nil "sh -c 'exec ubase-box respawn /usr/bin/runsvdir -P /var/service' &")
 
 (and
  (message "\(Richard Stallman --out o/\)")
  (kill-emacs 0))
+p
