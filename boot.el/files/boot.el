@@ -4,56 +4,71 @@
 ;; This was helpful - https://gist.github.com/lunaryorn/91a7734a8c1d93a8d1b0d3f85fe18b1e
 
 (setenv "PATH" "/bin")
-(setq exec-path '("/bin"))
-(setq shell-file-name "/bin/dash")
 (setenv "SHELL" "/bin/dash")
-(setq debug-on-error t)
+(setq exec-path '("/bin")
+      shell-file-name "/bin/dash"
+      debug-on-error t)
 
 ;;HAAAACK and remember, internet is  definitely for fat people.
 
 ;;https://felipec.wordpress.com/2013/11/04/init
 
-;; return zero or add 1 + 1 e.g.
-;; (or (eq (call-process "python3" nil nil nil "-m" "certifi") 0)
-;; (message "fail pypy"))
+(defun emergency ()
+  (start-process-shell-command "emacs" nil "exec /boot/emacs/bin/emacs"))
 
+;; https://stackoverflow.com/questions/23299314/finding-the-exit-code-of-a-shell-command-in-elisp
 (defun process-exit-code-and-output (program &rest args)
   "Run PROGRAM with ARGS and return the exit code and output in a list."
   (with-temp-buffer
     (list (apply 'call-process program nil (current-buffer) nil args)
           (buffer-string))))
 
-(message (concat "Welcome to KISS " (shell-command-to-string "uname -sr")))
+(message
+ (concat "Welcome to KISS " (shell-command-to-string "uname -sr")))
 
-(message "%s"
-         (process-exit-code-and-output
-          "ubase-box" "mount" "-o" "nosuid,noexec,nodev" "-t" "proc" "proc" "/proc"))
+(or (and
+     (eq 0 (call-process "mountpoint" nil nil nil "-q" "/proc"))
+     (message "/proc is already mounted"))
+    (progn
+      (message "mounting /proc...")
+      (message "%s"
+               (process-exit-code-and-output
+                "ubase-box" "mount" "-o" "nosuid,noexec,nodev" "-t" "proc" "proc" "/proc"))))
 
-(message "%s"
-         (process-exit-code-and-output
-          "ubase-box" "mount" "-o" "nosuid,noexec,nodev" "-t" "sysfs" "sys" "/proc"))
+(or (and
+     (eq 0 (call-process "mountpoint" nil nil nil "-q" "/sys"))
+     (message "/sys is already mounted"))
+    (progn
+      (message "mounting /sys...")
+      (message "%s"
+               (process-exit-code-and-output
+                "ubase-box" "mount" "-o" "nosuid,noexec,nodev" "-t" "sysfs" "sys" "/sys"))))
 
-(message "%s"
-         (process-exit-code-and-output
-          "ubase-box" "mount" "-o" "mode=0755,nosuid,nodev" "-t" "tmpfs" "run" "/run"))
+(or (and
+     (eq 0 (call-process "mountpoint" nil nil nil "-q" "/run"))
+     (message "/run is already mounted"))
+    (progn
+      (message "mounting /run...")
+      (message "%s"
+               (process-exit-code-and-output
+                "ubase-box" "mount" "-o" "mode=0755,nosuid,nodev" "-t" "tmpfs" "run" "/run"))))
 
-(message "%s"
-         (process-exit-code-and-output
-          "ubase-box" "mount" "-o" "mode=0755,nosuid" "-t" "devtmpfs" "dev" "/dev"))
+(or (and
+     (eq 0 (call-process "mountpoint" nil nil nil "-q" "/dev"))
+     (message "/dev is already mounted"))
+    (progn
+      (message "mounting /dev...")
+      (message "%s"
+               (process-exit-code-and-output
+                "ubase-box" "mount" "-o" "mode=0755,nosuid" "-t" "devtmpfs" "dev" "/dev"))))
 
-(message "\(Richard Stallman --out o/\)")
 
-(kill-emacs 0)
+
+(and
+ (message "\(Richard Stallman --out o/\)")
+ (kill-emacs 0))
 
 ;; TODO
-
-;;              emergency_shell() {
-;;              log "" \
-;;              "Init system encountered an error, starting emergency shell." \
-;;              "When ready, type 'exit' to continue the boot."
-
-;;              /bin/dash -l
-;;              }
 
 ;;              # shellcheck disable=2174
 ;;              mkdir -pm 0755 /run/runit \
