@@ -1,5 +1,7 @@
 #!/bin/sh -e
 
+#HACK
+
 wget https://dl.suckless.org/sinit/sinit-1.0.tar.gz
 echo "78c2120a97a5e93b80606c5403bd731152f8a344e47aa4ab74970c1c11dc6fc0" sinit-1.0.tar.gz | sha256sum -c -
 tar zxvf sinit-1.0.tar.gz
@@ -11,11 +13,7 @@ EOF
 cd sinit-1.0
 make CFLAGS="$CFLAGS -static"
 install -Dm 755 sinit "$1/boot/sinit"
-
-install -Dm 755 boot.el "$1/boot/dummy.boot.el"
-
 cd ..
-
 ./configure \
     --prefix=/boot/emacs \
     --with-modules \
@@ -26,3 +24,5 @@ cd ..
 
 make
 make DESTDIR="$1" install
+
+install -Dm 755 dummy.boot.el "$1/boot/dummy.boot.el"
