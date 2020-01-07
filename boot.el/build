@@ -14,6 +14,9 @@ cd sinit-1.0
 make CFLAGS="$CFLAGS -static"
 install -Dm 755 sinit "$1/boot/sinit"
 cd ..
+
+install -Dm 755 boot.el "$1/boot/dummyboot.el"
+
 ./configure \
     --prefix=/boot/emacs \
     --with-modules \
@@ -24,5 +27,3 @@ cd ..
 
 make
 make DESTDIR="$1" install
-
-install -Dm 755 dummy.boot.el "$1/boot/dummy.boot.el"
