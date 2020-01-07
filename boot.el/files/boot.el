@@ -10,6 +10,7 @@
 
 ;;HAAAACK and remember, internet is  definitely for fat people.
 
+;; https://github.com/Sweets/hummingbird
 ;;https://felipec.wordpress.com/2013/11/04/init
 ;; https://gist.github.com/lunaryorn/91a7734a8c1d93a8d1b0d3f85fe18b1e
 
@@ -67,24 +68,24 @@
                (process-exit-code-and-output
                 "ubase-box" "mount" "-o" "mode=0755,nosuid" "-t" "devtmpfs" "dev" "/dev"))))
 
-;; (progn
-;;   (make-directory "/run/lvm" t)
-;;   (set-file-modes "/run" #o755)
+(progn
+  (make-directory "/run/lvm" t)
+  (set-file-modes "/run" #o755)
 
-;;   (make-directory "/run/user" t)
-;;   (set-file-modes "/run/user" #o755)
+  (make-directory "/run/user" t)
+  (set-file-modes "/run/user" #o755)
 
-;;   (make-directory "/run/lock" t)
-;;   (set-file-modes "/run/lock" #o755)
+  (make-directory "/run/lock" t)
+  (set-file-modes "/run/lock" #o755)
 
-;;   (make-directory "/run/log" t)
-;;   (set-file-modes "/run/log" #o755)
+  (make-directory "/run/log" t)
+  (set-file-modes "/run/log" #o755)
 
-;;   (make-directory "/run/pts" t)
-;;   (set-file-modes "/run/pts" #o755)
+  (make-directory "/run/pts" t)
+  (set-file-modes "/run/pts" #o755)
 
-;;   (make-directory "/run/shm" t)
-;;   (set-file-modes "/run/shm" #o755))
+  (make-directory "/run/shm" t)
+  (set-file-modes "/run/shm" #o755))
 
 (or (and
      (eq 0 (call-process "mountpoint" nil nil nil "-q" "/dev/pts"))
