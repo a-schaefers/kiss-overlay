@@ -15,7 +15,7 @@ make CFLAGS="$CFLAGS -static"
 install -Dm 755 sinit "$1/boot/sinit"
 cd ..
 
-install -Dm 755 boot.el "$1/boot/dummyboot.el"
+install -Dm 755 boot.el "$1/boot/boot.el"
 
 ./configure \
     --prefix=/boot/emacs \
