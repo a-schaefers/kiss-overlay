@@ -1,5 +1,4 @@
-#!/bin/dash
-":"; exec /boot/emacs/bin/emacs --quick --script "$0" "$@" # -*- mode: emacs-lisp; lexical-binding: t; -*-
+;;; -*- lexical-binding: t; -*-
 
 (require 'subr-x)
 
@@ -10,13 +9,13 @@
       shell-file-name "/bin/dash"
       debug-on-error nil)
 
-;;HAAAACK and remember, internet is  definitely for fat people.
-
+;; helpful stuff
 ;; https://github.com/Sweets/hummingbird
-;;https://felipec.wordpress.com/2013/11/04/init
+;; https://felipec.wordpress.com/2013/11/04/init
 ;; https://gist.github.com/lunaryorn/91a7734a8c1d93a8d1b0d3f85fe18b1e
-
 ;; https://stackoverflow.com/questions/23299314/finding-the-exit-code-of-a-shell-command-in-elisp
+;; https://busybox.net/FAQ.html#job_control
+
 (defun process-exit-code-and-output (program &rest args)
   "Run PROGRAM with ARGS and return the exit code and output in a list."
   (with-temp-buffer
@@ -29,7 +28,8 @@
     (split-string (buffer-string) delim t)))
 
 (defun emergency ()
-  (start-process-shell-command "emacs" nil "exec /boot/emacs/bin/emacs"))
+  (start-process-shell-command "dash" nil "nohup dash -l")
+  (kill-emacs 1))
 
 (message
  (concat "Welcome to KISS " (shell-command-to-string "uname -sr")))
@@ -46,14 +46,20 @@
          (process-exit-code-and-output
           "ubase-box" "mount" "-o" "mode=0755,nosuid,nodev" "-t" "tmpfs" "run" "/run"))
 
-;; already mounted
+;; already mounted by kernel in my case
 (message "%s"
          (process-exit-code-and-output
           "ubase-box" "mount" "-o" "mode=0755,nosuid" "-t" "devtmpfs" "dev" "/dev"))
 
 (progn
-  (make-directory "/run/lvm" t)
+  (make-directory "/run" t)
   (set-file-modes "/run" #o755)
+
+  (make-directory "/run/runit" t)
+  (set-file-modes "/run/runit" #o755)
+
+  (make-directory "/run/lvm" t)
+  (set-file-modes "/run/lvm" #o755)
 
   (make-directory "/run/user" t)
   (set-file-modes "/run/user" #o755)
@@ -64,18 +70,16 @@
   (make-directory "/run/log" t)
   (set-file-modes "/run/log" #o755)
 
-  (make-directory "/run/pts" t)
-  (set-file-modes "/run/pts" #o755)
+  (make-directory "/dev/pts" t)
+  (set-file-modes "/dev/pts" #o755)
 
-  (make-directory "/run/shm" t)
-  (set-file-modes "/run/shm" #o755))
+  (make-directory "/dev/shm" t)
+  (set-file-modes "/dev/shm" #o755))
 
-;; fail
 (message "%s"
          (process-exit-code-and-output
           "ubase-box" "mount" "-o" "mode=0620,gid=5,nosuid" "-nt" "devpts" "devpts" "/dev/pts"))
 
-;; fail
 (message "%s"
          (process-exit-code-and-output
           "ubase-box" "mount" "-o" "mode=0777,nosuid,nodev" "-nt" "tmpfs" "shm" "/dev/shm"))
@@ -155,7 +159,7 @@
            (process-exit-code-and-output "sysctl" "-p" "/etc/sysctl.conf")))
 
 (when (executable-find "udevd")
-  (message "exit udev")
+  (message "Exit udev...")
   (message "%s"
            (process-exit-code-and-output "udevadm" "control" "--exit")))
 
@@ -165,20 +169,6 @@
 
 (message "Boot stage complete...")
 
-;; buggy job control (figure out proper forking /exec)
-(start-process-shell-command "getty" nil "exec sh -c 'ubase-box respawn /sbin/getty 38400 tty1' &>/dev/null &")
-(start-process-shell-command "getty" nil "exec sh -c 'ubase-box respawn /sbin/getty 38400 tty2' &>/dev/null &")
-
-;; (async-shell-command "ubase-box respawn ubase-box getty /dev/tty2 linux")
-;; (async-shell-command "ubase-box respawn ubase-box getty /dev/tty3 linux")
-;; (async-shell-command "ubase-box respawn ubase-box getty /dev/tty4 linux")
-;; (async-shell-command "ubase-box respawn ubase-box getty /dev/tty5 linux")
-;; (async-shell-command "ubase-box respawn ubase-box getty /dev/tty6 linux")
-
-;; runsvdir can't open supverise/lock ??????
-(start-process-shell-command "sh" nil "sh -c 'exec ubase-box respawn /usr/bin/runsvdir -P /var/service' &")
-
 (and
  (message "\(Richard Stallman --out o/\)")
  (kill-emacs 0))
-p
