@@ -1,4 +1,15 @@
-;;; -*- lexical-binding: t; -*-
+#!/bin/setsid /bin/dash
+":"; exec /boot/emacs/bin/emacs --quick --script "$0" "$@" </dev/tty1 >/dev/tty1 2>&1 # -*- mode: emacs-lisp; lexical-binding: t; -*-
+
+;; A minimal minimal elisp rewrite of https://github.com/kisslinux/init/blob/master/lib/init/rc.boot
+
+;; The following were also helpful:
+;; https://gist.github.com/lunaryorn/91a7734a8c1d93a8d1b0d3f85fe18b1e
+;; https://busybox.net/FAQ.html#job_control
+;; https://stackoverflow.com/questions/23299314/finding-the-exit-code-of-a-shell-command-in-elisp
+;; https://github.com/Sweets/hummingbird
+;; https://felipec.wordpress.com/2013/11/04/init
+;; https://www.emacswiki.org/emacs/PersistentProcesses
 
 (require 'subr-x)
 
@@ -8,13 +19,6 @@
 (setq exec-path '("/bin")
       shell-file-name "/bin/dash"
       debug-on-error nil)
-
-;; helpful stuff
-;; https://github.com/Sweets/hummingbird
-;; https://felipec.wordpress.com/2013/11/04/init
-;; https://gist.github.com/lunaryorn/91a7734a8c1d93a8d1b0d3f85fe18b1e
-;; https://stackoverflow.com/questions/23299314/finding-the-exit-code-of-a-shell-command-in-elisp
-;; https://busybox.net/FAQ.html#job_control
 
 (defun process-exit-code-and-output (program &rest args)
   "Run PROGRAM with ARGS and return the exit code and output in a list."
@@ -26,10 +30,6 @@
   (with-temp-buffer
     (insert-file-contents FILE)
     (split-string (buffer-string) delim t)))
-
-(defun emergency ()
-  (start-process-shell-command "dash" nil "nohup dash -l")
-  (kill-emacs 1))
 
 (message
  (concat "Welcome to KISS " (shell-command-to-string "uname -sr")))
@@ -98,6 +98,11 @@
   (message "%s"
            (process-exit-code-and-output
             "udevadm" "settle")))
+
+(defun emergency ()
+  "not sure how to do this part"
+  (message "CTRL + ALT + DEL")
+  (kill-emacs 1))
 
 (progn
   (message "Remounting rootfs as ro...")
@@ -168,6 +173,17 @@
   (start-process-shell-command "dmesg" nil "dmesg > /var/log/dmesg.log"))
 
 (message "Boot stage complete...")
+
+;; getty
+(call-process-shell-command "nohup ubase-box respawn ubase-box getty /dev/tty1 linux &" nil nil 0)
+(call-process-shell-command "nohup ubase-box respawn ubase-box getty /dev/tty2 linux &" nil nil 0)
+(call-process-shell-command "nohup ubase-box respawn ubase-box getty /dev/tty3 linux &" nil nil 0)
+(call-process-shell-command "nohup ubase-box respawn ubase-box getty /dev/tty4 linux &" nil nil 0)
+(call-process-shell-command "nohup ubase-box respawn ubase-box getty /dev/tty5 linux &" nil nil 0)
+(call-process-shell-command "nohup ubase-box respawn ubase-box getty /dev/tty6 linux &" nil nil 0)
+
+;;process supervisor
+(call-process-shell-command "nohup ubase-box respawn /usr/bin/runsvdir -P /var/service &" nil nil 0)
 
 (and
  (message "\(Richard Stallman --out o/\)")
