@@ -2,8 +2,7 @@
 
 export CFLAGS="$CFLAGS -static"
 
-./configure \
-    --prefix=/usr/local
+./configure --prefix=/usr/local
 
 make
 make DESTDIR="$1" install
