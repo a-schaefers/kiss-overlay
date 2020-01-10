@@ -1,0 +1,10 @@
+#!/bin/sh -e
+
+export CFLAGS="$CFLAGS -static"
+
+./configure \
+    --prefix=/usr/local \
+    --disable-kill
+
+make
+make DESTDIR="$1" install
