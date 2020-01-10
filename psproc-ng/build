@@ -4,7 +4,8 @@ export CFLAGS="$CFLAGS -static"
 
 ./configure \
     --prefix=/usr/local \
-    --disable-kill
+    --disable-kill \
+    --disable-uptime
 
 make
 make DESTDIR="$1" install
