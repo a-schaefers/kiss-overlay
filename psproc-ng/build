@@ -3,9 +3,13 @@
 export CFLAGS="$CFLAGS -static"
 
 ./configure \
-    --prefix=/usr/local \
-    --disable-kill \
-    --disable-uptime
+    --prefix=/usr/local
 
 make
-make DESTDIR="$1" install
+
+for f in free pgrep pkill pmap pwdx slabtop sysctl tload vmstat w watch ; do
+    install -D "$f" "$1/usr/local/bin/$f"
+done
+
+install -D ps/pscommand "$1/usr/local/bin/ps"
+install -D top/top "$1/usr/local/bin/top"
