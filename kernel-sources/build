@@ -1,0 +1,61 @@
+#!/bin/sh -e
+
+version=5.4.12
+
+patch -p1 < 5012_enable-cpu-optimizations-for-gcc91.patch
+
+mkdir -p "$1/usr/src/kernel-sources-$version"
+
+for x in ./* ./.[!.]* ./..?*; do
+    if [ -e "$x" ]; then mv -- "$x" "$1/usr/src/kernel-sources-$version"; fi
+done
+
+cd "$1/usr/src"
+ln -s "kernel-sources-$version" linux
+cd -
+
+cd "$1/usr/src/linux"
+
+if [ -f "/etc/kiss/savedconfig/kernel-sources/kconfig" ]; then
+    cp /etc/kiss/savedconfig/kernel-sources/kconfig \
+       "$1/usr/src/linux/.config"
+
+    make oldconfig
+
+    mv /etc/kiss/savedconfig/kernel-sources/kconfig \
+       /etc/kiss/savedconfig/kernel-sources/kconfig.old
+
+    cp "$1/usr/src/linux/.config" \
+       /etc/kiss/savedconfig/kernel-sources/kconfig
+
+    make "-j$(nproc)"
+
+    cat <<EOF > "INSTALL.sh"
+    #!/bin/sh
+    make modules_install
+    make install
+EOF
+    chmod +x INSTALL.sh
+
+    cat <<EOF
+    -> Manual intervention required:
+
+    cd /usr/src/linux && ./INSTALL.sh
+EOF
+else
+    make defconfig
+    mkdir -p /etc/kiss/savedconfig/kernel-sources
+    cat << EOF
+    -> Manual first time kernel configure needed!
+
+       cd /usr/src/linux
+       make menuconfig # and load .config , configure kernel...
+       make modules_install
+       make install
+       cp .config /etc/kiss/savedconfig/kernel-sources/kconfig
+       kiss b kernel-sources
+       kiss i kernel-sources
+EOF
+fi
+
+cd -
