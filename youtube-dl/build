@@ -2,4 +2,4 @@
 
 make youtube-dl
 
-install -Dmm755 youtube-dl "$1/usr/bin/youtube-dl"
+install -Dm755 youtube-dl "$1/usr/bin/youtube-dl"
