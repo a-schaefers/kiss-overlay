@@ -1,0 +1,11 @@
+#!/bin/sh -e
+
+for patch in *.diff; do /usr/local/bin/patch -p1 < "$patch"; done
+
+# install POST-patching defconfig to /etc/ incase mine.config.def.h causes build fail
+install -Dm 755 config.def.h "/etc/kiss/defconfig/dwm/config.def.h"
+
+mv mine.config.def.h config.def.h
+
+make
+make CFLAGS="$CFLAGS -static" X11INC=/usr/include/X11 X11LIB=/usr/lib FREETYPEINC=/usr/include/freetype2 PREFIX=/usr DESTDIR="$1" install
