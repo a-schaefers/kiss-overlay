@@ -1,0 +1,17 @@
+coreutils
+findutils
+diffutils
+patch
+gawk
+gtar
+gnupg2
+pinentry
+gnugrep
+emacs
+emacs-nox
+dash
+sbase
+ubase
+nawk
+iptables
+openvpn
