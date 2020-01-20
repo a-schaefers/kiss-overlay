@@ -7,3 +7,5 @@ export CFLAGS="$CFLAGS -Wno-error -static"
 
 make
 make DESTDIR="$1" install
+
+ln -s "$1/usr/local/bin/grep" "$1/usr/local/bin/ggrep" # for kiss pkg manager
