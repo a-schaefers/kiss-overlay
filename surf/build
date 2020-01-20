@@ -1,6 +1,10 @@
 #!/bin/sh -e
 
-# for p in *.diff; do patch -p1 < "$p"; done
+for p in *.diff; do /usr/local/bin/patch -p1 < "$p"; done
+
+install -Dm 755 config.def.h "/etc/kiss/defconfig/surf/config.def.h"
+
+mv mine.config.def.h config.def.h
 
 make
 make DESTDIR="$1" install

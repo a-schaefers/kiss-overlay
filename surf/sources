@@ -1,2 +1,3 @@
 https://dl.suckless.org/surf/surf-2.0.tar.gz
-files/config.def.h
+https://surf.suckless.org/patches/playexternal/surf-playexternal-20190724-b814567.diff
+files/mine.config.def.h
