@@ -4,6 +4,7 @@ diffutils
 patch
 gawk
 gtar
+nawk
 gnupg2
 pinentry
 gnugrep
@@ -12,6 +13,7 @@ emacs-nox
 dash
 sbase
 ubase
-nawk
 iptables
 openvpn
+dosfstools
+strace
