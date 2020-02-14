@@ -1,9 +1,0 @@
-#!/bin/sh -e
-
-# install POST-patching defconfig to /etc/ incase mine.config.def.h causes build fail
-install -Dm 755 config.def.h "/etc/kiss/defconfig/dmenu/config.def.h"
-
-mv mine.config.def.h config.def.h
-
-make
-make DESTDIR="$1" PREFIX=/usr install

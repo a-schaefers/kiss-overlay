@@ -1,6 +1,0 @@
-#!/bin/sh -e
-
-install -D rc.boot "$1/usr/lib/init/rc.boot"
-install -D rc.shutdown "$1/usr/lib/init/rc.shutdown"
-install -D rc.lib "$1/usr/lib/init/rc.lib"
-install -D rc.conf "$1/etc/rc.conf"
