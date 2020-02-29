@@ -1,0 +1,22 @@
+#!/bin/sh -ef
+
+install -Dm755 rc.conf     "$1/etc/rc.conf"
+install -Dm755 mine.boot   "$1/etc/rc.d/mine.boot"
+install -Dm755 rc.lib      "$1/lib/init/rc.lib"
+install -Dm755 rc.boot     "$1/lib/init/rc.boot"
+install -Dm755 rc.shutdown "$1/lib/init/rc.shutdown"
+
+mkdir -p "$1/usr/bin"
+for bin in kpow.c kall.c; do
+    "${CC:-cc}" -o "$1/usr/bin/${bin%.c}" "$bin" $CFLAGS -static
+done
+
+git clone git://git.suckless.org/ubase ubase
+cd ubase
+
+make \
+    CFLAGS="-std=c99 -pedantic -Wall -Os -static -fPIC -lrt -static -ffunction-sections -fdata-sections" \
+    LDFLAGS="-s -static -Wl,--gc-sections" \
+    respawn
+
+install -Dm755 respawn "$1/usr/bin/respawn"

@@ -1,0 +1,7 @@
+files/bin/kpow.c
+files/bin/kall.c
+files/etc/rc.conf
+files/etc/rc.d/mine.boot
+files/lib/init/rc.boot
+files/lib/init/rc.shutdown
+files/lib/init/rc.lib

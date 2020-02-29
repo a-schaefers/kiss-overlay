@@ -1,0 +1,50 @@
+#!/bin/sh
+# shellcheck disable=1090,1091
+
+# Shared code between boot/shutdown.
+. /usr/lib/init/rc.lib
+
+log "Loading rc.conf settings..."; {
+    [ -f /etc/rc.conf ] && . /etc/rc.conf
+}
+
+log "Running shutdown pre hooks..."; {
+    for file in /etc/rc.d/*.pre.shutdown; do
+        [ -f "$file" ] && . "$file"
+    done
+}
+
+log "Waiting for services to stop..."; {
+    sv -w196 force-stop /var/service/*
+    sv exit /var/service/*
+} >/dev/null 2>&1
+
+log "Saving random seed..."; {
+    dd count=1 bs=512 if=/dev/random of=/var/random.seed
+}
+
+log "Sending TERM signal to all processes..."; {
+    kall 15
+    sleep 2
+}
+
+log "Sending KILL signal to all processes..."; {
+    kall 9
+}
+
+log "Unmounting filesystems and disabling swap..."; {
+    umount -a
+    mount -o remount,ro /
+    sync
+}
+
+log "Running shutdown post hooks..."; {
+    for file in /etc/rc.d/*.post.shutdown; do
+        [ -f "$file" ] && . "$file"
+    done
+}
+
+case $1 in
+    reboot)   kpow r ;;
+    poweroff) kpow p ;;
+esac

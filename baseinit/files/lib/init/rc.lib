@@ -1,0 +1,23 @@
+#!/bin/sh
+# vim: set ft=bash:
+# shellcheck disable=1090,1091
+# This file is *not* executable as it is sourced by
+# the rc.boot and rc.shutdown scripts.
+
+log() {
+    printf '\033[31;1m=>\033[m %s\n' "$@"
+}
+
+mnt() {
+    mountpoint -q "$1" && return
+    dir=$1
+    shift
+    mount "$@" "$dir"
+}
+
+sos() {
+    log "Init system encountered an error, starting emergency shell." \
+        "When ready, type 'exit' to continue the boot."
+
+    /bin/sh -l
+}
