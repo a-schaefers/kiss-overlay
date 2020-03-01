@@ -1,0 +1,5 @@
+#!/bin/sh -e
+
+make CFLAGS="-static"
+
+install -Dm755 lolcat "$1/usr/bin/lolcat"
