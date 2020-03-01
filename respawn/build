@@ -1,0 +1,8 @@
+#!/bin/sh -e
+
+make \
+    CFLAGS="-std=c99 -pedantic -Wall -Os -static -fPIC -lrt -static -ffunction-sections -fdata-sections" \
+    LDFLAGS="-s -static -Wl,--gc-sections" \
+    respawn
+
+install -Dm755 respawn "$1/usr/bin/respawn"
