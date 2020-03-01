@@ -1,0 +1,9 @@
+#!/bin/sh -e
+
+autoreconf -i
+
+./configure
+
+make CFLAGS="-static"
+
+install -Dm755 cmatrix "$1/usr/bin/cmatrix"
